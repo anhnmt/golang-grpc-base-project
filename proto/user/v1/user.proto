@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "google/api/annotations.proto";
+
+service UserService {
+  rpc FindAllUsers(FindAllUsersRequest) returns (FindAllUsersResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users"
+    };
+  }
+
+  // Find User by ID
+  rpc FindUserByID (CommonUUIDRequest) returns (User) {
+    option (google.api.http) = {
+      get: "/api/v1/users/{id}"
+    };
+  }
+
+  // Create new User
+  rpc CreateUser (CreateUserRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      post: "/v1/users"
+      body: "*"
+    };
+  }
+
+  // Update User by ID
+  rpc UpdateUser (UpdateUserRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      put: "/v1/users/{id}"
+    };
+  }
+
+  // Delete User
+  rpc DeleteUser (CommonUUIDRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      delete: "/v1/users/{id}"
+    };
+  }
+}
+
+message CommonUUIDRequest {
+  string id = 1;
+}
+
+message CommonResponse {
+  string data = 1;
+}
+
+message User {
+  string id = 1;
+
+  string name = 2;
+
+  string email = 3;
+
+  string role = 4;
+
+  int64 status = 5;
+}
+
+message FindAllUsersRequest {
+  int64 page = 1;
+}
+
+message FindAllUsersResponse {
+  int64 totalPage = 1;
+  int64 currentPage = 2;
+  // Users
+  repeated User data = 3;
+}
+
+// The request create new User
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+  string role = 4;
+  int64 status = 5;
+}
+
+// The request update User
+message UpdateUserRequest {
+  string id = 1;
+  optional string name = 2;
+  optional string email = 3;
+  optional string role = 4;
+  optional int64 status = 5;
+}
