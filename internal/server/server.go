@@ -73,7 +73,10 @@ func (s *Server) Run() error {
 		srv := &http.Server{
 			Addr: s.appAddress,
 			// Use h2c, so we can serve HTTP/2 without TLS.
-			Handler:           s.grpcHandlerFunc(),
+			Handler: h2c.NewHandler(
+				s.grpcHandlerFunc(),
+				&http2.Server{},
+			),
 			ReadHeaderTimeout: time.Second,
 			ReadTimeout:       1 * time.Minute,
 			WriteTimeout:      1 * time.Minute,
@@ -94,12 +97,19 @@ func (s *Server) Close() error {
 }
 
 func (s *Server) grpcHandlerFunc() http.Handler {
-	return h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
 			s.grpcServer.ServeHTTP(w, r)
 			return
 		}
 
-		s.gatewayServer.ServeHTTP(w, r)
-	}), &http2.Server{})
+		var gwMux http.Handler = s.gatewayServer
+
+		// log payload if enabled
+		if s.logPayload {
+			gwMux = gatewayLoggerInterceptor(s.gatewayServer)
+		}
+
+		gwMux.ServeHTTP(w, r)
+	})
 }
