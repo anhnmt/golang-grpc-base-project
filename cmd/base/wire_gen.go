@@ -7,6 +7,8 @@
 package main
 
 import (
+	"github.com/xdorro/golang-grpc-base-project/internal/module/user/biz"
+	"github.com/xdorro/golang-grpc-base-project/internal/module/user/service"
 	"github.com/xdorro/golang-grpc-base-project/internal/server"
 	"github.com/xdorro/golang-grpc-base-project/internal/server/gateway"
 	"github.com/xdorro/golang-grpc-base-project/internal/server/grpc"
@@ -18,7 +20,9 @@ import (
 
 func initServer() *server.Server {
 	repoRepo := repo.NewRepo()
-	serviceService := service.NewService(repoRepo)
+	iUserBiz := userbiz.NewBiz(repoRepo)
+	userserviceService := userservice.NewService(iUserBiz)
+	serviceService := service.NewService(repoRepo, userserviceService)
 	grpcServer := grpc.NewGrpcServer(serviceService)
 	serveMux := gateway.NewGatewayServer(serviceService)
 	serverServer := server.NewServer(serviceService, grpcServer, serveMux)

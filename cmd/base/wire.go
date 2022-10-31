@@ -7,6 +7,7 @@ package main
 import (
 	"github.com/google/wire"
 
+	"github.com/xdorro/golang-grpc-base-project/internal/module"
 	"github.com/xdorro/golang-grpc-base-project/internal/server"
 	"github.com/xdorro/golang-grpc-base-project/internal/server/gateway"
 	"github.com/xdorro/golang-grpc-base-project/internal/server/grpc"
@@ -17,6 +18,7 @@ import (
 func initServer() *server.Server {
 	wire.Build(
 		repo.ProviderRepoSet,
+		module.ProviderModuleSet,
 		service.ProviderServiceSet,
 		grpc.ProviderGrpcServerSet,
 		gateway.ProviderGatewayServerSet,
