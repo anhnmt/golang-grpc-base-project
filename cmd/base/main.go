@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"flag"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -9,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/xdorro/golang-grpc-base-project/config"
+	"github.com/xdorro/golang-grpc-base-project/internal/server"
 	"github.com/xdorro/golang-grpc-base-project/pkg/logger"
 )
 
@@ -26,6 +29,14 @@ func main() {
 	signal.Notify(exit, os.Interrupt, syscall.SIGTERM)
 
 	srv := initServer()
+
+	// Run server
+	go func(srv *server.Server) {
+		err := srv.Run()
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal().Err(err).Msg("Failed to run http server")
+		}
+	}(srv)
 
 	<-exit
 	if err := srv.Close(); err != nil {
