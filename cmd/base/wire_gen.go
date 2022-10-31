@@ -11,12 +11,14 @@ import (
 	"github.com/xdorro/golang-grpc-base-project/internal/server/gateway"
 	"github.com/xdorro/golang-grpc-base-project/internal/server/grpc"
 	"github.com/xdorro/golang-grpc-base-project/internal/service"
+	"github.com/xdorro/golang-grpc-base-project/pkg/repo"
 )
 
 // Injectors from wire.go:
 
 func initServer() *server.Server {
-	serviceService := service.NewService()
+	repoRepo := repo.NewRepo()
+	serviceService := service.NewService(repoRepo)
 	grpcServer := grpc.NewGrpcServer(serviceService)
 	serveMux := gateway.NewGatewayServer(serviceService)
 	serverServer := server.NewServer(serviceService, grpcServer, serveMux)

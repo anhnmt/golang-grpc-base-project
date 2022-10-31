@@ -45,9 +45,14 @@ func defaultConfig() {
 	viper.SetDefault("app.address", "0.0.0.0:5000")
 	viper.SetDefault("app.debug", true)
 
-	viper.SetDefault("pporf.address", "0.0.0.0:6060")
+	// PPROF
+	viper.SetDefault("pprof.address", "0.0.0.0:6060")
 
 	// LOG
 	viper.SetDefault("log.payload", true)
 	viper.SetDefault("log.path", "logs/data.log")
+
+	// DATABASE
+	viper.SetDefault("database.url", "mongodb://localhost:27017")
+	viper.SetDefault("database.name", "base")
 }
