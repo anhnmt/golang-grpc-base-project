@@ -1,0 +1,11 @@
+version: v1
+name: buf.build/xdorro/golang-grpc-base-project
+breaking:
+  use:
+    - FILE
+lint:
+  use:
+    - DEFAULT
+deps:
+  - buf.build/grpc-ecosystem/grpc-gateway
+  - buf.build/googleapis/googleapis

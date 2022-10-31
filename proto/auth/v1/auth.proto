@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package auth.v1;
+
+import "google/api/annotations.proto";
+
+service AuthService {
+  rpc Login (LoginRequest) returns (TokenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/token"
+      body: "*"
+    };
+  }
+
+  rpc RevokeToken (TokenRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/revokeToken"
+      body: "*"
+    };
+  }
+
+  rpc RefreshToken (TokenRequest) returns (TokenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/auth/refreshToken"
+      body: "*"
+    };
+  }
+}
+
+message CommonResponse {
+  string token = 1;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message TokenResponse {
+  string tokenType = 1;
+  int64 tokenExpire = 3;
+  string accessToken = 2;
+  string refreshToken = 4;
+}
+
+message TokenRequest {
+  string token = 1;
+}

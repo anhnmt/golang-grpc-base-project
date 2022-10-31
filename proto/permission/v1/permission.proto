@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+package permission.v1;
+
+import "google/api/annotations.proto";
+
+service PermissionService {
+  // Find all Permissions
+  rpc FindAllPermissions (FindAllPermissionsRequest) returns (FindAllPermissionsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/permissions"
+    };
+  }
+
+  // Find Permission by ID
+  rpc FindPermissionByID (CommonUUIDRequest) returns (Permission) {
+    option (google.api.http) = {
+      get: "/api/v1/permissions/{id}"
+    };
+  }
+
+  // Create new Permission
+  rpc CreatePermission (CreatePermissionRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/permissions"
+      body: "*"
+    };
+  }
+
+  // Update Permission by ID
+  rpc UpdatePermission (UpdatePermissionRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/permissions/{id}"
+      body: "*"
+    };
+  }
+
+  // Delete Permission
+  rpc DeletePermission (CommonUUIDRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/permissions/{id}"
+    };
+  }
+}
+
+message CommonUUIDRequest {
+  string id = 1;
+}
+
+message CommonResponse {
+  string data = 1;
+}
+
+message FindAllPermissionsRequest {
+  int64 page = 1;
+}
+
+message FindAllPermissionsResponse {
+  int64 totalPage = 1;
+  int64 currentPage = 2;
+  // Permissions
+  repeated Permission data = 3;
+}
+
+message Permission {
+  string id = 1;
+  string name = 2;
+  string slug = 3;
+  bool requireAuth = 4;
+  bool requireHash = 5;
+}
+
+// The request create new Permission
+message CreatePermissionRequest {
+  string name = 1;
+  string slug = 2;
+  bool requireAuth = 3;
+  bool requireHash = 4;
+}
+
+// The request update Permission
+message UpdatePermissionRequest {
+  string id = 1;
+  optional string name = 2;
+  optional string slug = 3;
+  optional bool requireAuth = 4;
+  optional bool requireHash = 5;
+}

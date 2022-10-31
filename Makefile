@@ -17,15 +17,26 @@ docker.run:
 wire.gen:
 	wire ./...
 
+buf.gen:
+	buf generate
+
+buf.update:
+	cd proto/ && buf mod update
+
 lint.run:
 	golangci-lint run --fast ./...
 
 go.install:
 	go install github.com/google/wire/cmd/wire@v0.5.0
 
+	go install github.com/bufbuild/buf/cmd/buf@v1.9.0
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
+	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.12.0
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2.0
+
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.0
 
-go.gen: wire.gen
+go.gen: wire.gen buf.gen
 
 go.lint: lint.run
 

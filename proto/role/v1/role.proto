@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package role.v1;
+
+import "google/api/annotations.proto";
+
+service RoleService {
+  rpc FindAllRoles (FindAllRolesRequest) returns (FindAllRolesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/roles"
+    };
+  }
+
+  // Find Role by Name
+  rpc FindRoleByName (CommonNameRequest) returns (Role) {
+    option (google.api.http) = {
+      get: "/api/v1/roles/{name}"
+    };
+  }
+
+  // Create new Role
+  rpc CreateRole (CreateRoleRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/roles"
+      body: "*"
+    };
+  }
+
+  // Update Role by ID
+  rpc UpdateRole (UpdateRoleRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      put: "/api/v1/roles/{name}"
+      body: "*"
+    };
+  }
+
+  // Delete Role
+  rpc DeleteRole (CommonNameRequest) returns (CommonResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/roles/{name}"
+    };
+  }
+}
+
+message CommonNameRequest {
+  string name = 1;
+}
+
+message CommonResponse {
+  string data = 1;
+}
+
+message FindAllRolesRequest {}
+
+message FindAllRolesResponse {
+  // Roles
+  repeated Role data = 3;
+}
+
+message Role {
+  // Output only. Name of the role.
+  string name = 1;
+
+  repeated string permissions = 2;
+}
+
+// The request create new Role
+message CreateRoleRequest {
+  string name = 1;
+
+  // List Permissions ID
+  repeated string permissions = 2;
+}
+
+// The request update Role
+message UpdateRoleRequest {
+  string name = 1;
+
+  // List Permissions ID
+  repeated string permissions = 2;
+}
