@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func NewGatewayServer(service *service.Service) *runtime.ServeMux {
-	jsonOption := &runtime.JSONPb{
+	jsonpb := &runtime.JSONPb{
 		MarshalOptions: protojson.MarshalOptions{
 			Multiline:       false,
 			Indent:          "",
@@ -27,16 +28,19 @@ func NewGatewayServer(service *service.Service) *runtime.ServeMux {
 		},
 	}
 
-	gwMux := runtime.NewServeMux(
-		runtime.WithMarshalerOption(runtime.MIMEWildcard, jsonOption),
+	gatewayServer := runtime.NewServeMux(
+		runtime.WithMarshalerOption(runtime.MIMEWildcard, jsonpb),
 		runtime.WithForwardResponseOption(CustomForwardResponse),
 		// runtime.WithErrorHandler(CustomErrorResponse),
 	)
 
 	// register Gateway Server handler
-	service.RegisterGatewayServerHandler(gwMux)
+	err := service.RegisterGatewayServerHandler(gatewayServer)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Register Gateway server failed")
+	}
 
-	return gwMux
+	return gatewayServer
 }
 
 // CustomForwardResponse forwards the response from the backend to the client.
