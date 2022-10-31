@@ -42,8 +42,10 @@ func NewConfig(env string) {
 func defaultConfig() {
 	// APP
 	viper.SetDefault("app.name", "golang-grpc-base-project")
-	viper.SetDefault("app.port", 5000)
+	viper.SetDefault("app.address", "0.0.0.0:5000")
 	viper.SetDefault("app.debug", true)
+
+	viper.SetDefault("pporf.address", "0.0.0.0:6060")
 
 	// LOG
 	viper.SetDefault("log.payload", true)
