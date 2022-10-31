@@ -1,10 +1,10 @@
 [app]
 name = "golang-grpc-base-project"
-port = 5000
+address = 5000
 debug = true
 
 [pprof]
-port = 6060
+address = 6060
 
 [log]
 payload = true
