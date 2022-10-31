@@ -11,9 +11,11 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/xdorro/golang-grpc-base-project/internal/service"
 )
 
-func NewGrpcServer() *grpc.Server {
+func NewGrpcServer(service *service.Service) *grpc.Server {
 	logger := grpczerolog.InterceptorLogger(log.Logger)
 
 	streamInterceptors := []grpc.StreamServerInterceptor{
@@ -46,6 +48,9 @@ func NewGrpcServer() *grpc.Server {
 		grpc.ChainStreamInterceptor(streamInterceptors...),
 		grpc.ChainUnaryInterceptor(unaryInterceptors...),
 	)
+
+	// register gRPC Server handler
+	service.RegisterGrpcServerHandler(grpcServer)
 
 	reflection.Register(grpcServer)
 
