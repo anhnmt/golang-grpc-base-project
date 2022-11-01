@@ -52,6 +52,10 @@ func defaultConfig() {
 	viper.SetDefault("log.payload", true)
 	viper.SetDefault("log.path", "logs/data.log")
 
+	// LOG
+	viper.SetDefault("cors.debug", false)
+	viper.SetDefault("cors.enabled", true)
+
 	// DATABASE
 	viper.SetDefault("database.url", "mongodb://localhost:27017")
 	viper.SetDefault("database.name", "base")
