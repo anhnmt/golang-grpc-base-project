@@ -85,11 +85,7 @@ func (s *Biz) FindAllUsers(req *userv1.FindAllUsersRequest) (
 func (s *Biz) FindUserByID(req *userv1.CommonUUIDRequest) (
 	*userv1.User, error,
 ) {
-	id, err := primitive.ObjectIDFromHex(req.GetId())
-	if err != nil {
-		log.Err(err).Msg("Failed find user by id")
-		return nil, err
-	}
+	id := req.GetId()
 
 	opt := options.
 		FindOne().
@@ -167,10 +163,7 @@ func (s *Biz) CreateUser(req *userv1.CreateUserRequest) (
 func (s *Biz) UpdateUser(req *userv1.UpdateUserRequest) (
 	*userv1.CommonResponse, error,
 ) {
-	id, err := primitive.ObjectIDFromHex(req.GetId())
-	if err != nil {
-		return nil, err
-	}
+	id := req.GetId()
 
 	filter := bson.M{
 		"_id": id,
@@ -213,10 +206,7 @@ func (s *Biz) UpdateUser(req *userv1.UpdateUserRequest) (
 func (s *Biz) DeleteUser(req *userv1.CommonUUIDRequest) (
 	*userv1.CommonResponse, error,
 ) {
-	id, err := primitive.ObjectIDFromHex(req.GetId())
-	if err != nil {
-		return nil, err
-	}
+	id := req.GetId()
 
 	filter := bson.M{
 		"_id": id,
@@ -231,7 +221,7 @@ func (s *Biz) DeleteUser(req *userv1.CommonUUIDRequest) (
 		return nil, fmt.Errorf("user does not exists")
 	}
 
-	if _, err = repo.SoftDeleteOne(s.userCollection, filter); err != nil {
+	if _, err := repo.SoftDeleteOne(s.userCollection, filter); err != nil {
 		return nil, err
 	}
 
