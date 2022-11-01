@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/xdorro/golang-grpc-base-project/internal/service"
+	"github.com/xdorro/golang-grpc-base-project/pkg/casbin"
 )
 
 // Server struct.
@@ -30,12 +31,15 @@ type Server struct {
 	logPayload   bool
 
 	service       *service.Service
+	casbin        *casbin.Casbin
 	grpcServer    *grpc.Server
 	gatewayServer *runtime.ServeMux
 }
 
 // NewServer new server.
-func NewServer(service *service.Service, grpcServer *grpc.Server, gatewayServer *runtime.ServeMux) *Server {
+func NewServer(
+	service *service.Service, casbin *casbin.Casbin, grpcServer *grpc.Server, gatewayServer *runtime.ServeMux,
+) *Server {
 	s := &Server{
 		appName:       viper.GetString("app.name"),
 		appDebug:      viper.GetBool("app.debug"),
@@ -43,6 +47,7 @@ func NewServer(service *service.Service, grpcServer *grpc.Server, gatewayServer 
 		pprofAddress:  viper.GetString("pprof.address"),
 		logPayload:    viper.GetBool("log.payload"),
 		service:       service,
+		casbin:        casbin,
 		grpcServer:    grpcServer,
 		gatewayServer: gatewayServer,
 	}

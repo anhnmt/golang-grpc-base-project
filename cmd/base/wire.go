@@ -12,6 +12,7 @@ import (
 	"github.com/xdorro/golang-grpc-base-project/internal/server/gateway"
 	"github.com/xdorro/golang-grpc-base-project/internal/server/grpc"
 	"github.com/xdorro/golang-grpc-base-project/internal/service"
+	"github.com/xdorro/golang-grpc-base-project/pkg/casbin"
 	"github.com/xdorro/golang-grpc-base-project/pkg/redis"
 	"github.com/xdorro/golang-grpc-base-project/pkg/repo"
 )
@@ -19,6 +20,7 @@ import (
 func initServer() *server.Server {
 	wire.Build(
 		repo.ProviderRepoSet,
+		casbin.ProviderCasbinSet,
 		redis.ProviderRedisSet,
 		module.ProviderModuleSet,
 		service.ProviderServiceSet,

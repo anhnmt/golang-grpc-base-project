@@ -15,6 +15,7 @@ import (
 	"github.com/xdorro/golang-grpc-base-project/internal/server/gateway"
 	"github.com/xdorro/golang-grpc-base-project/internal/server/grpc"
 	"github.com/xdorro/golang-grpc-base-project/internal/service"
+	"github.com/xdorro/golang-grpc-base-project/pkg/casbin"
 	"github.com/xdorro/golang-grpc-base-project/pkg/redis"
 	"github.com/xdorro/golang-grpc-base-project/pkg/repo"
 )
@@ -29,8 +30,9 @@ func initServer() *server.Server {
 	authbizBiz := authbiz.NewBiz(repoRepo)
 	authserviceService := authservice.NewService(authbizBiz)
 	serviceService := service.NewService(repoRepo, redisRedis, userserviceService, authserviceService)
+	casbinCasbin := casbin.NewCasbin(repoRepo)
 	grpcServer := grpc.NewGrpcServer(serviceService)
 	serveMux := gateway.NewGatewayServer(serviceService)
-	serverServer := server.NewServer(serviceService, grpcServer, serveMux)
+	serverServer := server.NewServer(serviceService, casbinCasbin, grpcServer, serveMux)
 	return serverServer
 }
