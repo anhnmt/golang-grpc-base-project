@@ -5,9 +5,6 @@ import (
 	"errors"
 	"flag"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/rs/zerolog/log"
 
@@ -26,9 +23,6 @@ func main() {
 
 	logger.NewLogger(*logFile)
 	config.NewConfig(*env)
-
-	exit := make(chan os.Signal, 1) // we need to reserve to buffer size 1, so the notifier are not blocked
-	signal.Notify(exit, os.Interrupt, syscall.SIGTERM)
 
 	srv := initServer()
 
