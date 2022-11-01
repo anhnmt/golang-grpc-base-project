@@ -21,7 +21,7 @@ service UserService {
   // Create new User
   rpc CreateUser (CreateUserRequest) returns (CommonResponse) {
     option (google.api.http) = {
-      post: "/v1/users"
+      post: "/api/v1/users"
       body: "*"
     };
   }
@@ -29,14 +29,15 @@ service UserService {
   // Update User by ID
   rpc UpdateUser (UpdateUserRequest) returns (CommonResponse) {
     option (google.api.http) = {
-      put: "/v1/users/{id}"
+      put: "/api/v1/users/{id}"
+      body: "*"
     };
   }
 
   // Delete User
   rpc DeleteUser (CommonUUIDRequest) returns (CommonResponse) {
     option (google.api.http) = {
-      delete: "/v1/users/{id}"
+      delete: "/api/v1/users/{id}"
     };
   }
 }
