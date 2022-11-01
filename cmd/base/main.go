@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	"github.com/xdorro/golang-grpc-base-project/config"
 	"github.com/xdorro/golang-grpc-base-project/internal/server"
 	"github.com/xdorro/golang-grpc-base-project/pkg/logger"
+	"github.com/xdorro/golang-grpc-base-project/utils"
 )
 
 func main() {
@@ -38,11 +40,13 @@ func main() {
 		}
 	}(srv)
 
-	<-exit
-	if err := srv.Close(); err != nil {
-		log.Err(err).Msg("Failed to close server")
-		return
-	}
+	// wait for termination signal and register client & http server clean-up operations
+	wait := utils.GracefulShutdown(context.Background(), utils.DefaultShutdownTimeout, map[string]utils.Operation{
+		"server": func(ctx context.Context) error {
+			return srv.Close()
+		},
+	})
+	<-wait
 
 	log.Info().Msg("Graceful shutdown complete")
 }
