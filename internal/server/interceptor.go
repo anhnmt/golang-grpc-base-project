@@ -19,9 +19,15 @@ func (mrw *MyResponseWriter) Write(p []byte) (int, error) {
 
 func gatewayLoggerInterceptor(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logger := log.Info()
+
+		if r.RequestURI != "" {
+			logger.Interface("method", r.RequestURI)
+		}
+
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			log.Printf("Error reading body: %v", err)
+			log.Err(err).Msg("Error reading body")
 			http.Error(w, "can't read body", http.StatusBadRequest)
 			return
 		}
@@ -37,8 +43,7 @@ func gatewayLoggerInterceptor(h http.Handler) http.Handler {
 			buf:            &bytes.Buffer{},
 		}
 
-		logger := log.Info().
-			Interface("header", r.Header.Clone())
+		logger.Interface("header", r.Header.Clone())
 
 		if len(body) > 0 {
 			logger.RawJSON("body", body)
@@ -46,8 +51,7 @@ func gatewayLoggerInterceptor(h http.Handler) http.Handler {
 
 		h.ServeHTTP(mrw, r)
 
-		logger.
-			RawJSON("response", mrw.buf.Bytes())
+		logger.RawJSON("response", mrw.buf.Bytes())
 
 		// Now inspect response, and finally send it out:
 		// (You can also modify it before sending it out!)
@@ -55,7 +59,6 @@ func gatewayLoggerInterceptor(h http.Handler) http.Handler {
 			log.Printf("Failed to send out response: %v", err)
 		}
 
-		logger.
-			Msg("Log payload interceptor")
+		logger.Msg("Log payload interceptor")
 	})
 }
