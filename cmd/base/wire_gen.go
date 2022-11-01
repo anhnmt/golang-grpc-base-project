@@ -22,10 +22,10 @@ import (
 
 func initServer() *server.Server {
 	repoRepo := repo.NewRepo()
-	iUserBiz := userbiz.NewBiz(repoRepo)
-	userserviceService := userservice.NewService(iUserBiz)
-	biz := authbiz.NewBiz(repoRepo)
-	authserviceService := authservice.NewService(biz)
+	biz := userbiz.NewBiz(repoRepo)
+	userserviceService := userservice.NewService(biz)
+	authbizBiz := authbiz.NewBiz(repoRepo)
+	authserviceService := authservice.NewService(authbizBiz)
 	serviceService := service.NewService(repoRepo, userserviceService, authserviceService)
 	grpcServer := grpc.NewGrpcServer(serviceService)
 	serveMux := gateway.NewGatewayServer(serviceService)

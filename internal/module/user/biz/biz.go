@@ -36,7 +36,7 @@ type Biz struct {
 }
 
 // NewBiz new service.
-func NewBiz(repo *repo.Repo) IUserBiz {
+func NewBiz(repo *repo.Repo) *Biz {
 	s := &Biz{
 		userCollection: repo.CollectionModel(&usermodel.User{}),
 	}

@@ -12,13 +12,13 @@ var _ userv1.UserServiceServer = &Service{}
 // Service struct.
 type Service struct {
 	// option
-	userBiz userbiz.IUserBiz
+	userBiz *userbiz.Biz
 
 	userv1.UnimplementedUserServiceServer
 }
 
 // NewService new service.
-func NewService(userBiz userbiz.IUserBiz) *Service {
+func NewService(userBiz *userbiz.Biz) *Service {
 	s := &Service{
 		userBiz: userBiz,
 	}
