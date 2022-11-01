@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 service AuthService {
   rpc Login (LoginRequest) returns (TokenResponse) {
     option (google.api.http) = {
-      post: "/api/v1/auth/token"
+      post: "/api/v1/auth/login"
       body: "*"
     };
   }
