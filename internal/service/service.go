@@ -2,12 +2,18 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	authservice "github.com/xdorro/golang-grpc-base-project/internal/module/auth/service"
+	permissionmodel "github.com/xdorro/golang-grpc-base-project/internal/module/permission/model"
 	permissionservice "github.com/xdorro/golang-grpc-base-project/internal/module/permission/service"
 	roleservice "github.com/xdorro/golang-grpc-base-project/internal/module/role/service"
 	userservice "github.com/xdorro/golang-grpc-base-project/internal/module/user/service"
@@ -98,4 +104,76 @@ func (s *Service) RegisterGatewayServerHandler(gatewayServer *runtime.ServeMux) 
 	}
 
 	return nil
+}
+
+// SeederServiceInfo
+func (s *Service) SeederServiceInfo(grpcServer *grpc.Server) {
+	services := make([]string, 0)
+	for name, val := range grpcServer.GetServiceInfo() {
+		for _, info := range val.Methods {
+			services = append(services, fmt.Sprintf("/%s/%s", name, info.Name))
+		}
+	}
+
+	if len(services) == 0 {
+		return
+	}
+
+	permissionCollection := s.repo.CollectionModel(&permissionmodel.Permission{})
+
+	// find all permissions with filter
+	filter := bson.M{
+		"deleted_at": bson.M{
+			"$exists": false,
+		},
+		"slug": bson.M{
+			"$in": services,
+		},
+	}
+
+	// find all permissions with filter and option
+	opt := options.
+		Find().
+		SetSort(bson.M{"created_at": -1})
+
+	bulk := make([]any, 0)
+	permissions, _ := repo.Find[permissionmodel.Permission](permissionCollection, filter, opt)
+
+	for _, slug := range services {
+		if ok := s.hasSlugInPermissions(permissions, slug); !ok {
+			name := slug[strings.LastIndex(slug, "/")+1:]
+			per := &permissionmodel.Permission{
+				Name: name,
+				Slug: slug,
+			}
+			per.PreCreate()
+
+			bulk = append(bulk, per)
+		}
+	}
+
+	if len(bulk) > 0 {
+		_, err := repo.InsertMany(permissionCollection, bulk)
+		if err != nil {
+			log.Err(err).Msg("Error create permission")
+		}
+
+		// _ = s.redis.Del(context.Background(), constants.ListAuthPermissionsKey)
+
+		log.Info().
+			Interface("data", bulk).
+			Msg("Insert permissions")
+	}
+
+}
+
+// hasSlugInPermissions
+func (s *Service) hasSlugInPermissions(permissions []*permissionmodel.Permission, slug string) bool {
+	for _, permission := range permissions {
+		if strings.EqualFold(slug, permission.Slug) {
+			return true
+		}
+	}
+
+	return false
 }
