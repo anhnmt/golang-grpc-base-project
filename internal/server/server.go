@@ -115,6 +115,7 @@ func (s *Server) grpcHandlerFunc() http.Handler {
 			gwMux = gatewayLoggerInterceptor(s.gatewayServer)
 		}
 
+		gwMux = newCORS().Handler(gwMux)
 		gwMux.ServeHTTP(w, r)
 	})
 }
