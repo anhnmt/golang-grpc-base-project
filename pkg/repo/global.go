@@ -46,7 +46,7 @@ func CountDocuments(collection *mongo.Collection, filter any) (int64, error) {
 
 	total, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		log.Err(err).Msg("Error count all users")
+		log.Err(err).Msg("Error count all")
 		return 0, err
 	}
 
@@ -63,7 +63,7 @@ func FindOne[T any](collection *mongo.Collection, filter any, opt ...*options.Fi
 	result := new(T)
 	err := collection.FindOne(ctx, filter, opt...).Decode(result)
 	if err != nil {
-		log.Err(err).Msg("Error find user")
+		log.Err(err).Msg("Error find")
 		return nil, err
 	}
 
@@ -79,7 +79,7 @@ func InsertOne(collection *mongo.Collection, data any, opt ...*options.InsertOne
 
 	res, err := collection.InsertOne(ctx, data, opt...)
 	if err != nil {
-		log.Err(err).Msg("Error creating user")
+		log.Err(err).Msg("Error create one")
 		return nil, err
 	}
 
@@ -111,7 +111,7 @@ func UpdateOne(collection *mongo.Collection, filter, data any, opt ...*options.U
 
 	res, err := collection.UpdateOne(ctx, filter, data, opt...)
 	if err != nil {
-		log.Err(err).Msg("Error updating user")
+		log.Err(err).Msg("Error update one")
 		return nil, err
 	}
 
@@ -127,7 +127,7 @@ func UpdateMany(collection *mongo.Collection, filter, data any, opt ...*options.
 
 	res, err := collection.UpdateMany(ctx, filter, data, opt...)
 	if err != nil {
-		log.Err(err).Msg("Error updating user")
+		log.Err(err).Msg("Error update many")
 		return nil, err
 	}
 
@@ -143,7 +143,7 @@ func DeleteOne(collection *mongo.Collection, filter any, opt ...*options.DeleteO
 
 	res, err := collection.DeleteOne(ctx, filter, opt...)
 	if err != nil {
-		log.Err(err).Msg("Error deleting user")
+		log.Err(err).Msg("Error delete one")
 		return nil, err
 	}
 
@@ -159,7 +159,7 @@ func DeleteMany(collection *mongo.Collection, filter any, opt ...*options.Delete
 
 	res, err := collection.DeleteMany(ctx, filter, opt...)
 	if err != nil {
-		log.Err(err).Msg("Error deleting user")
+		log.Err(err).Msg("Error delete many")
 		return nil, err
 	}
 
@@ -183,7 +183,7 @@ func SoftDeleteOne(collection *mongo.Collection, filter any, opt ...*options.Upd
 	}
 	res, err := collection.UpdateOne(ctx, filter, data, opt...)
 	if err != nil {
-		log.Err(err).Msg("Error soft deleting user")
+		log.Err(err).Msg("Error soft delete one")
 		return nil, err
 	}
 
