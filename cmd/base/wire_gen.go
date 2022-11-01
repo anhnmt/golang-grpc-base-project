@@ -9,6 +9,8 @@ package main
 import (
 	"github.com/xdorro/golang-grpc-base-project/internal/module/auth/biz"
 	"github.com/xdorro/golang-grpc-base-project/internal/module/auth/service"
+	"github.com/xdorro/golang-grpc-base-project/internal/module/permission/biz"
+	"github.com/xdorro/golang-grpc-base-project/internal/module/permission/service"
 	"github.com/xdorro/golang-grpc-base-project/internal/module/role/biz"
 	"github.com/xdorro/golang-grpc-base-project/internal/module/role/service"
 	"github.com/xdorro/golang-grpc-base-project/internal/module/user/biz"
@@ -34,7 +36,9 @@ func initServer() *server.Server {
 	casbinCasbin := casbin.NewCasbin(repoRepo)
 	rolebizBiz := rolebiz.NewBiz(casbinCasbin)
 	roleserviceService := roleservice.NewService(rolebizBiz)
-	serviceService := service.NewService(repoRepo, redisRedis, userserviceService, authserviceService, roleserviceService)
+	permissionbizBiz := permissionbiz.NewBiz(repoRepo)
+	permissionserviceService := permissionservice.NewService(permissionbizBiz)
+	serviceService := service.NewService(repoRepo, redisRedis, userserviceService, authserviceService, roleserviceService, permissionserviceService)
 	grpcServer := grpc.NewGrpcServer(serviceService)
 	serveMux := gateway.NewGatewayServer(serviceService)
 	serverServer := server.NewServer(serviceService, casbinCasbin, grpcServer, serveMux)
