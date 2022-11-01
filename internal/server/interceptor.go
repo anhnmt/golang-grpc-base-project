@@ -22,7 +22,7 @@ func gatewayLoggerInterceptor(h http.Handler) http.Handler {
 		logger := log.Info()
 
 		if r.RequestURI != "" {
-			logger.Interface("method", r.RequestURI)
+			logger.Interface("request-uri", r.RequestURI)
 		}
 
 		body, err := io.ReadAll(r.Body)
