@@ -18,6 +18,25 @@ url = "localhost:16379"
 password = ""
 db = 0
 
+[casbin]
+name = "roles"
+model = """
+[request_definition]
+r = sub, obj
+
+[policy_definition]
+p = sub, obj
+
+[role_definition]
+g = _, _
+
+[policy_effect]
+e = some(where (p.eft == allow))
+
+[matchers]
+m = (g(r.sub, p.sub) || keyMatch(r.sub, p.sub)) && keyMatch(r.obj, p.obj)
+"""
+
 [jwt]
 signKey = """
 -----BEGIN RSA PRIVATE KEY-----
