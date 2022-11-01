@@ -12,6 +12,10 @@ payload = true
 [seeder]
 service = true
 
+[cors]
+debug = false
+enabled = true
+
 [database]
 url = "mongodb://root:123456aA%40@localhost:27017"
 name = "base"

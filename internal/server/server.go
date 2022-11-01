@@ -29,6 +29,7 @@ type Server struct {
 	pprofAddress string
 	appDebug     bool
 	logPayload   bool
+	corsEnabled  bool
 
 	service       *service.Service
 	casbin        *casbin.Casbin
@@ -46,6 +47,7 @@ func NewServer(
 		appAddress:    viper.GetString("app.address"),
 		pprofAddress:  viper.GetString("pprof.address"),
 		logPayload:    viper.GetBool("log.payload"),
+		corsEnabled:   viper.GetBool("cors.enabled"),
 		service:       service,
 		casbin:        casbin,
 		grpcServer:    grpcServer,
@@ -112,10 +114,14 @@ func (s *Server) grpcHandlerFunc() http.Handler {
 
 		// log payload if enabled
 		if s.logPayload {
-			gwMux = gatewayLoggerInterceptor(s.gatewayServer)
+			gwMux = gatewayLoggerInterceptor(gwMux)
 		}
 
-		gwMux = newCORS().Handler(gwMux)
+		// add CORS if enabled
+		if s.corsEnabled {
+			gwMux = newCORS().Handler(gwMux)
+		}
+
 		gwMux.ServeHTTP(w, r)
 	})
 }
