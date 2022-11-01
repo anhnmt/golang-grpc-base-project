@@ -7,6 +7,8 @@
 package main
 
 import (
+	"github.com/xdorro/golang-grpc-base-project/internal/module/auth/biz"
+	"github.com/xdorro/golang-grpc-base-project/internal/module/auth/service"
 	"github.com/xdorro/golang-grpc-base-project/internal/module/user/biz"
 	"github.com/xdorro/golang-grpc-base-project/internal/module/user/service"
 	"github.com/xdorro/golang-grpc-base-project/internal/server"
@@ -22,7 +24,9 @@ func initServer() *server.Server {
 	repoRepo := repo.NewRepo()
 	iUserBiz := userbiz.NewBiz(repoRepo)
 	userserviceService := userservice.NewService(iUserBiz)
-	serviceService := service.NewService(repoRepo, userserviceService)
+	biz := authbiz.NewBiz(repoRepo)
+	authserviceService := authservice.NewService(biz)
+	serviceService := service.NewService(repoRepo, userserviceService, authserviceService)
 	grpcServer := grpc.NewGrpcServer(serviceService)
 	serveMux := gateway.NewGatewayServer(serviceService)
 	serverServer := server.NewServer(serviceService, grpcServer, serveMux)
