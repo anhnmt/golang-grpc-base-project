@@ -15,7 +15,17 @@ import (
 	"github.com/xdorro/golang-grpc-base-project/internal/service"
 )
 
+type Server struct {
+	logPayload    bool
+	seederService bool
+}
+
 func NewGrpcServer(service *service.Service) *grpc.Server {
+	s := &Server{
+		logPayload:    viper.GetBool("log.payload"),
+		seederService: viper.GetBool("seeder.service"),
+	}
+
 	logger := grpczerolog.InterceptorLogger(log.Logger)
 
 	streamInterceptors := []grpc.StreamServerInterceptor{
@@ -28,10 +38,8 @@ func NewGrpcServer(service *service.Service) *grpc.Server {
 		recovery.UnaryServerInterceptor(),
 	}
 
-	logPayload := viper.GetBool("log.payload")
-
 	// log payload if enabled
-	if logPayload {
+	if s.logPayload {
 		payloadDecider := func(
 			ctx context.Context, fullMethodName string, servingObject interface{},
 		) logging.PayloadDecision {
@@ -51,6 +59,12 @@ func NewGrpcServer(service *service.Service) *grpc.Server {
 
 	// register gRPC Server handler
 	service.RegisterGrpcServerHandler(grpcServer)
+
+	// seeder Service
+	if s.seederService {
+		// seeder service info
+		service.SeederServiceInfo(grpcServer)
+	}
 
 	reflection.Register(grpcServer)
 

@@ -9,6 +9,9 @@ address = "localhost:6060"
 [log]
 payload = true
 
+[seeder]
+service = true
+
 [database]
 url = "mongodb://root:123456aA%40@localhost:27017"
 name = "base"
