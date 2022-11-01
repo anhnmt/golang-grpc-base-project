@@ -13,6 +13,11 @@ payload = true
 url = "mongodb://root:123456aA%40@localhost:27017"
 name = "base"
 
+[redis]
+url = "localhost:16379"
+password = ""
+db = 0
+
 [jwt]
 signKey = """
 -----BEGIN RSA PRIVATE KEY-----
