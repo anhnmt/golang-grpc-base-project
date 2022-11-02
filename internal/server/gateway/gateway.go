@@ -2,7 +2,7 @@ package gateway
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 	"io"
 	"net/http"
 
@@ -70,38 +70,24 @@ func customErrorHandler(
 		logger.Str("method", val)
 	}
 
-	// return Internal when Marshal failed
 	const fallback = `{"error": true, "message": "failed to marshal error message"}`
-
-	var customStatus *runtime.HTTPStatusError
-	if errors.As(err, &customStatus) {
-		err = customStatus.Err
-	}
 
 	s := status.Convert(err)
 	pb := s.Proto()
-
-	w.Header().Del("Trailer")
-	w.Header().Del("Transfer-Encoding")
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 
 	customResponse := map[string]interface{}{
 		"error":   true,
 		"message": pb.GetMessage(),
 	}
 
-	responseBody, merr := marshaler.Marshal(customResponse)
-	if merr != nil {
-		grpclog.Infof("Failed to marshal error message %q: %v", s, merr)
+	w.Header().Set("Content-type", marshaler.ContentType(customResponse))
+	w.WriteHeader(runtime.HTTPStatusFromCode(status.Code(err)))
+	jErr := json.NewEncoder(w).Encode(customResponse)
+
+	if jErr != nil {
 		if _, err = io.WriteString(w, fallback); err != nil {
 			grpclog.Infof("Failed to write response: %v", err)
 		}
-		return
-	}
-
-	if _, err = w.Write(responseBody); err != nil {
-		grpclog.Infof("Failed to write response: %v", err)
 	}
 
 	logger.Msg("Logger custom error handler")
