@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
@@ -29,6 +30,7 @@ import (
 
 // Service struct.
 type Service struct {
+	mu    sync.Mutex
 	repo  *repo.Repo
 	redis *redis.Redis
 
@@ -100,18 +102,26 @@ func (s *Service) RegisterGatewayServerHandler(gatewayServer *runtime.ServeMux) 
 	group := new(errgroup.Group)
 
 	group.Go(func() error {
+		s.mu.Lock()
+		defer s.mu.Unlock()
 		return userv1.RegisterUserServiceHandlerFromEndpoint(ctx, gatewayServer, appAddress, opts)
 	})
 
 	group.Go(func() error {
+		s.mu.Lock()
+		defer s.mu.Unlock()
 		return authv1.RegisterAuthServiceHandlerFromEndpoint(ctx, gatewayServer, appAddress, opts)
 	})
 
 	group.Go(func() error {
+		s.mu.Lock()
+		defer s.mu.Unlock()
 		return rolev1.RegisterRoleServiceHandlerFromEndpoint(ctx, gatewayServer, appAddress, opts)
 	})
 
 	group.Go(func() error {
+		s.mu.Lock()
+		defer s.mu.Unlock()
 		return permissionv1.RegisterPermissionServiceHandlerFromEndpoint(ctx, gatewayServer, appAddress, opts)
 	})
 
