@@ -60,10 +60,13 @@ func customForwardResponse(_ context.Context, w http.ResponseWriter, _ proto.Mes
 
 // customErrorHandler handles the error from the backend to the client.
 func customErrorHandler(
-	ctx context.Context, _ *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, _ *http.Request,
+	ctx context.Context, _ *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request,
 	err error,
 ) {
 	logger := log.Err(err)
+
+	logger.Str("request_uri", r.RequestURI)
+	logger.Interface("header", r.Header.Clone())
 
 	val, ok := runtime.RPCMethod(ctx)
 	if ok {
