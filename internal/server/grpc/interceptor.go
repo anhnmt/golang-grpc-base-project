@@ -14,6 +14,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	permissionmodel "github.com/xdorro/golang-grpc-base-project/internal/module/permission/model"
 	"github.com/xdorro/golang-grpc-base-project/pkg/redis"
@@ -82,13 +84,13 @@ func (s *Server) authInterceptor(fullMethod string) grpc_auth.AuthFunc {
 			token, err := auth.AuthFromMD(ctx, utils.TokenType)
 			if err != nil {
 				log.Err(err).Msg("Error get token from header")
-				return ctx, err
+				return ctx, status.Errorf(codes.Unauthenticated, err.Error())
 			}
 
 			var claims *jwt.RegisteredClaims
 			claims, err = utils.DecryptToken(token)
 			if err != nil {
-				return ctx, err
+				return ctx, status.Errorf(codes.Unauthenticated, err.Error())
 			}
 
 			// check role
@@ -100,7 +102,7 @@ func (s *Server) authInterceptor(fullMethod string) grpc_auth.AuthFunc {
 			allowed, _ := s.casbin.Client().Enforce(role, fullMethod)
 			if !allowed {
 				err = fmt.Errorf("Permission denied")
-				return ctx, err
+				return ctx, status.Errorf(codes.PermissionDenied, err.Error())
 			}
 		}
 
