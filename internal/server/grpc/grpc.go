@@ -51,12 +51,16 @@ func NewGrpcServer(repo *repo.Repo, redis *redis.Redis, casbin *casbin.Casbin, s
 		metrics.StreamServerInterceptor(opmetrics),
 		logging.StreamServerInterceptor(logger),
 		recovery.StreamServerInterceptor(),
+		// custom interceptors
+		s.StreamServerInterceptor(),
 	}
 	unaryInterceptors := []grpc.UnaryServerInterceptor{
 		tracing.UnaryServerInterceptor(optracing),
 		metrics.UnaryServerInterceptor(opmetrics),
 		logging.UnaryServerInterceptor(logger),
 		recovery.UnaryServerInterceptor(),
+		// custom interceptors
+		s.UnaryServerInterceptor(),
 	}
 
 	// log payload if enabled

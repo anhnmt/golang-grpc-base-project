@@ -12,6 +12,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	usermodel "github.com/xdorro/golang-grpc-base-project/internal/module/user/model"
+	"github.com/xdorro/golang-grpc-base-project/pkg/redis"
 	"github.com/xdorro/golang-grpc-base-project/pkg/repo"
 	authv1 "github.com/xdorro/golang-grpc-base-project/proto/pb/auth/v1"
 	"github.com/xdorro/golang-grpc-base-project/utils"
@@ -30,12 +31,14 @@ type IAuthBiz interface {
 type Biz struct {
 	// option
 	userCollection *mongo.Collection
+	redis          *redis.Redis
 }
 
 // NewBiz new service.
-func NewBiz(repo *repo.Repo) *Biz {
+func NewBiz(repo *repo.Repo, redis *redis.Redis) *Biz {
 	s := &Biz{
 		userCollection: repo.CollectionModel(&usermodel.User{}),
+		redis:          redis,
 	}
 
 	return s
@@ -149,12 +152,12 @@ func (s *Biz) generateAuthToken(data *usermodel.User) (
 			return err
 		}
 
-		// key := fmt.Sprintf(utils.AuthSessionKey, uid, sessionID)
-		// err = redis.Set(s.redis, key, result.RefreshToken, utils.RefreshExpire)
-		// if err != nil {
-		// 	log.Err(err).Msg("Failed to set auth session")
-		// 	return err
-		// }
+		key := fmt.Sprintf(utils.RedisKeyAuthSession, uid, sessionID)
+		err = redis.Set(s.redis.Client(), key, result.RefreshToken, utils.RefreshExpire)
+		if err != nil {
+			log.Err(err).Msg("Failed to set auth session")
+			return err
+		}
 
 		return nil
 	})
@@ -195,15 +198,15 @@ func (s *Biz) removeAuthToken(token string) (*jwt.RegisteredClaims, error) {
 		Interface("claims", claims).
 		Msg("Token decrypted")
 
-	// // check if the refresh token is existed
-	// key := fmt.Sprintf(utils.AuthSessionKey, claims.Subject, claims.ID)
-	// if check := redis.Exists(s.redis, key); !check {
-	// 	return nil, fmt.Errorf("token is not found")
-	// }
-	//
-	// if err = redis.Del(s.redis, key); err != nil {
-	// 	return nil, err
-	// }
+	// check if the refresh token is existed
+	key := fmt.Sprintf(utils.RedisKeyAuthSession, claims.Subject, claims.ID)
+	if check := redis.Exists(s.redis.Client(), key); !check {
+		return nil, fmt.Errorf("token is not found")
+	}
+
+	if err = redis.Del(s.redis.Client(), key); err != nil {
+		return nil, err
+	}
 
 	return claims, nil
 }
