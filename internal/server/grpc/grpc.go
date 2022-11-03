@@ -4,36 +4,57 @@ import (
 	"context"
 	"time"
 
+	metrics "github.com/grpc-ecosystem/go-grpc-middleware/providers/openmetrics/v2"
+	"github.com/grpc-ecosystem/go-grpc-middleware/providers/opentracing/v2"
 	grpczerolog "github.com/grpc-ecosystem/go-grpc-middleware/providers/zerolog/v2"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/tracing"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	permissionmodel "github.com/xdorro/golang-grpc-base-project/internal/module/permission/model"
 	"github.com/xdorro/golang-grpc-base-project/internal/service"
+	"github.com/xdorro/golang-grpc-base-project/pkg/casbin"
+	"github.com/xdorro/golang-grpc-base-project/pkg/redis"
+	"github.com/xdorro/golang-grpc-base-project/pkg/repo"
 )
 
 type Server struct {
 	logPayload    bool
 	seederService bool
+
+	// options
+	permissionCollection *mongo.Collection
+	redis                *redis.Redis
+	casbin               *casbin.Casbin
 }
 
-func NewGrpcServer(service *service.Service) *grpc.Server {
+func NewGrpcServer(repo *repo.Repo, redis *redis.Redis, casbin *casbin.Casbin, service *service.Service) *grpc.Server {
 	s := &Server{
-		logPayload:    viper.GetBool("log.payload"),
-		seederService: viper.GetBool("seeder.service"),
+		logPayload:           viper.GetBool("log.payload"),
+		seederService:        viper.GetBool("seeder.service"),
+		permissionCollection: repo.CollectionModel(&permissionmodel.Permission{}),
+		redis:                redis,
+		casbin:               casbin,
 	}
 
 	logger := grpczerolog.InterceptorLogger(log.Logger)
+	optracing := opentracing.InterceptorTracer()
+	opmetrics := metrics.NewServerMetrics()
 
 	streamInterceptors := []grpc.StreamServerInterceptor{
-		// tags.StreamServerInterceptor(tags.WithFieldExtractor(tags.CodeGenRequestFieldExtractor)),
+		tracing.StreamServerInterceptor(optracing),
+		metrics.StreamServerInterceptor(opmetrics),
 		logging.StreamServerInterceptor(logger),
 		recovery.StreamServerInterceptor(),
 	}
 	unaryInterceptors := []grpc.UnaryServerInterceptor{
+		tracing.UnaryServerInterceptor(optracing),
+		metrics.UnaryServerInterceptor(opmetrics),
 		logging.UnaryServerInterceptor(logger),
 		recovery.UnaryServerInterceptor(),
 	}
@@ -52,7 +73,6 @@ func NewGrpcServer(service *service.Service) *grpc.Server {
 
 	// register grpc service Server
 	grpcServer := grpc.NewServer(
-		// grpc.Creds(tlsCredentials),
 		grpc.ChainStreamInterceptor(streamInterceptors...),
 		grpc.ChainUnaryInterceptor(unaryInterceptors...),
 	)

@@ -39,7 +39,7 @@ func initServer() *server.Server {
 	permissionbizBiz := permissionbiz.NewBiz(repoRepo)
 	permissionserviceService := permissionservice.NewService(permissionbizBiz)
 	serviceService := service.NewService(repoRepo, redisRedis, userserviceService, authserviceService, roleserviceService, permissionserviceService)
-	grpcServer := grpc.NewGrpcServer(serviceService)
+	grpcServer := grpc.NewGrpcServer(repoRepo, redisRedis, casbinCasbin, serviceService)
 	serveMux := gateway.NewGatewayServer(serviceService)
 	serverServer := server.NewServer(serviceService, casbinCasbin, grpcServer, serveMux)
 	return serverServer
