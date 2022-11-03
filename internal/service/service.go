@@ -7,10 +7,12 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	authservice "github.com/xdorro/golang-grpc-base-project/internal/module/auth/service"
 	permissionmodel "github.com/xdorro/golang-grpc-base-project/internal/module/permission/model"
@@ -87,23 +89,33 @@ func (s *Service) RegisterGrpcServerHandler(grpcServer *grpc.Server) {
 func (s *Service) RegisterGatewayServerHandler(gatewayServer *runtime.ServeMux) error {
 	ctx := context.Background()
 
-	if err := userv1.RegisterUserServiceHandlerServer(ctx, gatewayServer, s.userService); err != nil {
-		return err
+	appAddress := viper.GetString("app.address")
+
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
 
-	if err := authv1.RegisterAuthServiceHandlerServer(ctx, gatewayServer, s.authService); err != nil {
-		return err
-	}
+	// we're going to run the different protocol servers in parallel, so
+	// make an errgroup
+	group := new(errgroup.Group)
 
-	if err := rolev1.RegisterRoleServiceHandlerServer(ctx, gatewayServer, s.roleService); err != nil {
-		return err
-	}
+	group.Go(func() error {
+		return userv1.RegisterUserServiceHandlerFromEndpoint(ctx, gatewayServer, appAddress, opts)
+	})
 
-	if err := permissionv1.RegisterPermissionServiceHandlerServer(ctx, gatewayServer, s.permissionService); err != nil {
-		return err
-	}
+	group.Go(func() error {
+		return authv1.RegisterAuthServiceHandlerFromEndpoint(ctx, gatewayServer, appAddress, opts)
+	})
 
-	return nil
+	group.Go(func() error {
+		return rolev1.RegisterRoleServiceHandlerFromEndpoint(ctx, gatewayServer, appAddress, opts)
+	})
+
+	group.Go(func() error {
+		return permissionv1.RegisterPermissionServiceHandlerFromEndpoint(ctx, gatewayServer, appAddress, opts)
+	})
+
+	return group.Wait()
 }
 
 // SeederServiceInfo
