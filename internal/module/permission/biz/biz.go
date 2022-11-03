@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	permissionmodel "github.com/xdorro/golang-grpc-base-project/internal/module/permission/model"
+	"github.com/xdorro/golang-grpc-base-project/pkg/redis"
 	"github.com/xdorro/golang-grpc-base-project/pkg/repo"
 	permissionv1 "github.com/xdorro/golang-grpc-base-project/proto/pb/permission/v1"
 	"github.com/xdorro/golang-grpc-base-project/utils"
@@ -40,12 +41,14 @@ type IPermissionBiz interface {
 type Biz struct {
 	// option
 	permissionCollection *mongo.Collection
+	redis                *redis.Redis
 }
 
 // NewBiz new service.
-func NewBiz(repo *repo.Repo) *Biz {
+func NewBiz(repo *repo.Repo, redis *redis.Redis) *Biz {
 	s := &Biz{
 		permissionCollection: repo.CollectionModel(&permissionmodel.Permission{}),
+		redis:                redis,
 	}
 
 	return s
@@ -151,9 +154,9 @@ func (s *Biz) CreatePermission(req *permissionv1.CreatePermissionRequest) (
 		Data: resID,
 	}
 
-	// if err = redis.Del(s.redis, utils.ListAuthPermissionsKey); err != nil {
-	// 	return nil, err
-	// }
+	if err = redis.Del(s.redis.Client(), utils.RedisKeyListAuthPermissions); err != nil {
+		return nil, err
+	}
 
 	return res, nil
 }
@@ -215,9 +218,9 @@ func (s *Biz) UpdatePermission(req *permissionv1.UpdatePermissionRequest) (
 		Data: req.GetId(),
 	}
 
-	// if err = redis.Del(s.redis, utils.ListAuthPermissionsKey); err != nil {
-	// 	return nil, err
-	// }
+	if err = redis.Del(s.redis.Client(), utils.RedisKeyListAuthPermissions); err != nil {
+		return nil, err
+	}
 
 	return res, nil
 }
@@ -253,9 +256,9 @@ func (s *Biz) DeletePermission(req *permissionv1.CommonUUIDRequest) (
 		Data: req.GetId(),
 	}
 
-	// if err = redis.Del(s.redis, utils.ListAuthPermissionsKey); err != nil {
-	// 	return nil, err
-	// }
+	if err = redis.Del(s.redis.Client(), utils.RedisKeyListAuthPermissions); err != nil {
+		return nil, err
+	}
 
 	return res, nil
 }
