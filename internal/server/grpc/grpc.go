@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	metrics "github.com/grpc-ecosystem/go-grpc-middleware/providers/openmetrics/v2"
@@ -24,6 +25,7 @@ import (
 )
 
 type Server struct {
+	mu            sync.Mutex
 	logPayload    bool
 	seederService bool
 
@@ -82,6 +84,7 @@ func NewGrpcServer(repo *repo.Repo, redis *redis.Redis, casbin *casbin.Casbin, s
 	)
 
 	// register gRPC Server handler
+	s.mu.Lock()
 	service.RegisterGrpcServerHandler(grpcServer)
 
 	// seeder Service
@@ -89,6 +92,7 @@ func NewGrpcServer(repo *repo.Repo, redis *redis.Redis, casbin *casbin.Casbin, s
 		// seeder service info
 		service.SeederServiceInfo(grpcServer)
 	}
+	s.mu.Unlock()
 
 	reflection.Register(grpcServer)
 
