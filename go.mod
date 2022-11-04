@@ -10,6 +10,9 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/google/uuid v1.3.0
 	github.com/google/wire v0.5.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
+	github.com/grpc-ecosystem/go-grpc-middleware/providers/openmetrics/v2 v2.0.0-rc.3
+	github.com/grpc-ecosystem/go-grpc-middleware/providers/opentracing/v2 v2.0.0-rc.3
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/zerolog/v2 v2.0.0-rc.3
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0-rc.3
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.13.0
@@ -34,9 +37,6 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware/providers/openmetrics/v2 v2.0.0-rc.3 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware/providers/opentracing/v2 v2.0.0-rc.3 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.12 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
