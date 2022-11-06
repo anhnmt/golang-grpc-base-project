@@ -3,7 +3,7 @@ module github.com/xdorro/golang-grpc-base-project
 go 1.19
 
 require (
-	github.com/casbin/casbin/v2 v2.56.0
+	github.com/casbin/casbin/v2 v2.57.0
 	github.com/casbin/mongodb-adapter/v3 v3.4.1
 	github.com/go-openapi/inflect v0.19.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.1
@@ -19,7 +19,7 @@ require (
 	github.com/natefinch/lumberjack/v3 v3.0.0-alpha
 	github.com/rs/cors v1.8.2
 	github.com/rs/zerolog v1.28.0
-	github.com/spf13/viper v1.13.0
+	github.com/spf13/viper v1.14.0
 	go.mongodb.org/mongo-driver v1.11.0
 	golang.org/x/crypto v0.1.0
 	golang.org/x/net v0.1.0
