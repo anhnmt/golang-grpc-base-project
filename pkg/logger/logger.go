@@ -9,6 +9,7 @@ import (
 	"github.com/natefinch/lumberjack/v3"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
 )
 
 // NewLogger the default logger
@@ -57,7 +58,7 @@ func getLogWriter(logFileUrl string) *lumberjack.Roller {
 
 	// get log file path
 	if logFileUrl == "" {
-		logFileUrl = "logs/data.log"
+		logFileUrl = viper.GetString("log.path")
 	}
 
 	var maxSize int64 = 100 * 1024 * 1024 // 100 MB

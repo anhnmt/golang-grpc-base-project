@@ -59,4 +59,9 @@ func defaultConfig() {
 	// DATABASE
 	viper.SetDefault("database.url", "mongodb://localhost:27017")
 	viper.SetDefault("database.name", "base")
+
+	// REDIS
+	viper.SetDefault("redis.url", "localhost:6379")
+	viper.SetDefault("redis.password", "")
+	viper.SetDefault("redis.db", 0)
 }
