@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  base-project:
+    image: ghcr.io/anhnmt/golang-base-project:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - base-project
+    restart: "always"
+    volumes:
+      - ./logs:/root/logs
+    deploy:
+     replicas: 2
+
+networks:
+  base-project:
+    external: true
