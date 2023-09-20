@@ -13,25 +13,47 @@ import (
 	"github.com/spf13/viper"
 )
 
+var cfg = Config{}
+
 // NewConfig initializes the config
 func NewConfig(env string) error {
-	viper.AutomaticEnv()
+	v := viper.New()
 
+	v.AutomaticEnv()
 	// Replace env key
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	viper.AddConfigPath(".")
-
-	envFile := getEnvFile(env)
-	viper.SetConfigFile(envFile)
-	viper.SetConfigType("env")
-
-	if err := unwrapError(envFile); err != nil {
+	pwd, err := os.Getwd()
+	if err != nil {
 		return err
 	}
 
+	v.AddConfigPath(".")
+	v.AddConfigPath(pwd)
+
+	envFile := getEnvFile(env)
+	v.SetConfigFile(envFile)
+	v.SetConfigType("env")
+
+	err = v.ReadInConfig()
+	if err != nil {
+		pe := &fs.PathError{Op: "open", Path: envFile, Err: syscall.ENOENT}
+		if ok := errors.As(err, &pe); !ok {
+			return fmt.Errorf("read in config failed, %v", err)
+		}
+	}
+
+	err = v.Unmarshal(&cfg)
+	if err != nil {
+		return fmt.Errorf("unable to decode into struct, %v", err)
+	}
+
+	if env == "" {
+		env = "default"
+	}
+
 	slog.Info("Runtime information",
-		slog.String("env", envFile),
+		slog.String("env", env),
 		slog.String("goarch", runtime.GOARCH),
 		slog.String("goos", runtime.GOOS),
 		slog.String("version", runtime.Version()),
@@ -39,17 +61,6 @@ func NewConfig(env string) error {
 
 	return nil
 
-}
-
-func unwrapError(envFile string) error {
-	err := viper.ReadInConfig()
-
-	pe := &fs.PathError{Op: "open", Path: envFile, Err: syscall.ENOENT}
-	if ok := errors.As(err, &pe); ok {
-		return nil
-	}
-
-	return err
 }
 
 func getEnvFile(env string) string {

@@ -10,14 +10,14 @@ import (
 )
 
 // NewLogger the default logger
-func NewLogger(logPath string) error {
+func NewLogger(logFile string) error {
 	// Multi Writer
 	writer := []io.Writer{
 		os.Stdout,
 	}
 
-	if logPath != "" {
-		roller, err := getLogWriter(logPath)
+	if logFile != "" {
+		roller, err := getLogWriter(logFile)
 		if err != nil {
 			return err
 		}
