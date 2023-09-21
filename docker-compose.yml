@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   base-project:
-    image: ghcr.io/anhnmt/golang-base-project:latest
+    image: ghcr.io/anhnmt/golang-grpc-base-project:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,7 +12,7 @@ services:
     volumes:
       - ./logs:/root/logs
     deploy:
-     replicas: 2
+     replicas: 1
 
 networks:
   base-project:
