@@ -18,6 +18,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/main
 FROM alpine:latest
 
 ENV APP_ENV=""
+ENV LOG_FILE=""
 
 RUN apk add --update --no-cache ca-certificates
 
@@ -27,4 +28,4 @@ WORKDIR /root/
 COPY --from=builder /app/main .
 
 # Command to run the executable
-ENTRYPOINT ./main --env=${APP_ENV}
+ENTRYPOINT ./main --env=${APP_ENV} --log-file=${LOG_FILE}

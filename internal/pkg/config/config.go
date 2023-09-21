@@ -8,15 +8,24 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync/atomic"
 	"syscall"
 
 	"github.com/spf13/viper"
 )
 
-var cfg = Config{}
+var defaultConfig atomic.Value
 
-// NewConfig initializes the config
-func NewConfig(env string) error {
+// Default returns the default Config.
+func Default() *Config { return defaultConfig.Load().(*Config) }
+
+// SetDefault makes c the default Config.
+func SetDefault(c *Config) {
+	defaultConfig.Store(c)
+}
+
+// New initializes the config
+func New(env string) {
 	v := viper.New()
 
 	v.AutomaticEnv()
@@ -25,7 +34,7 @@ func NewConfig(env string) error {
 
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		panic(fmt.Errorf("get current directory failed: %v", err))
 	}
 
 	v.AddConfigPath(".")
@@ -39,34 +48,31 @@ func NewConfig(env string) error {
 	if err != nil {
 		pe := &fs.PathError{Op: "open", Path: envFile, Err: syscall.ENOENT}
 		if ok := errors.As(err, &pe); !ok {
-			return fmt.Errorf("read in config failed, %v", err)
+			panic(fmt.Errorf("read in config failed: %v", err))
 		}
 	}
 
-	err = v.Unmarshal(&cfg)
+	c := new(Config)
+	err = v.Unmarshal(&c)
 	if err != nil {
-		return fmt.Errorf("unable to decode into struct, %v", err)
+		panic(fmt.Errorf("unable to decode into struct: %v", err))
 	}
-
-	if env == "" {
-		env = "default"
-	}
+	defaultConfig.Store(c)
 
 	slog.Info("Runtime information",
-		slog.String("env", env),
+		slog.String("env", envFile),
 		slog.String("goarch", runtime.GOARCH),
 		slog.String("goos", runtime.GOOS),
 		slog.String("version", runtime.Version()),
 	)
-
-	return nil
-
 }
 
 func getEnvFile(env string) string {
-	envFile := fmt.Sprintf(".env.%s", env)
-	if checkEnvFileExist(envFile) {
-		return envFile
+	if env != "" {
+		envFile := fmt.Sprintf(".env.%s", env)
+		if checkEnvFileExist(envFile) {
+			return envFile
+		}
 	}
 
 	return ".env"

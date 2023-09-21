@@ -7,9 +7,9 @@ type Config struct {
 }
 
 func AppName() string {
-	return cfg.AppName
+	return Default().AppName
 }
 
 func AppPort() int {
-	return cfg.AppPort
+	return Default().AppPort
 }
