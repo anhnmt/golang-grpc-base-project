@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	_ "net/http/pprof"
 	"strings"
 
 	"golang.org/x/net/http2"
@@ -32,10 +33,19 @@ func New(
 func (s *Server) Start() error {
 	g, _ := errgroup.WithContext(context.Background())
 
+	if config.PprofEnabled() {
+		g.TryGo(func() error {
+			addr := fmt.Sprintf(":%d", config.PprofPort())
+			slog.Info(fmt.Sprintf("starting pprof http://localhost%s", addr))
+
+			return http.ListenAndServe(addr, nil)
+		})
+	}
+
 	// Serve the http server on the http listener.
 	g.TryGo(func() error {
 		addr := fmt.Sprintf(":%d", config.AppPort())
-		slog.Info(fmt.Sprintf("Starting application http://localhost%s", addr))
+		slog.Info(fmt.Sprintf("starting application http://localhost%s", addr))
 
 		// create new http server
 		srv := &http.Server{
