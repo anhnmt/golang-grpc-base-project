@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -9,8 +10,8 @@ import (
 	"github.com/natefinch/lumberjack/v3"
 )
 
-// NewLogger the default logger
-func NewLogger(logFile string) error {
+// New the default logger
+func New(logFile string) {
 	// Multi Writer
 	writer := []io.Writer{
 		os.Stdout,
@@ -19,7 +20,7 @@ func NewLogger(logFile string) error {
 	if logFile != "" {
 		roller, err := getLogWriter(logFile)
 		if err != nil {
-			return err
+			panic(fmt.Errorf("get current directory failed: %s", err))
 		}
 
 		writer = append(writer, roller)
@@ -43,14 +44,12 @@ func NewLogger(logFile string) error {
 		ReplaceAttr: replacer,
 	})
 
-	logger := slog.New(textHandler)
-	slog.SetDefault(logger)
-
-	return nil
+	l := slog.New(textHandler)
+	slog.SetDefault(l)
 }
 
 // getLogWriter returns a lumberjack.logger
-func getLogWriter(logPath string) (*lumberjack.Roller, error) {
+func getLogWriter(logFile string) (*lumberjack.Roller, error) {
 	var maxSize int64 = 50 * 1024 * 1024 // 50 MB
 
 	options := &lumberjack.Options{
@@ -59,7 +58,7 @@ func getLogWriter(logPath string) (*lumberjack.Roller, error) {
 		Compress:   false,
 	}
 
-	roller, err := lumberjack.NewRoller(logPath, maxSize, options)
+	roller, err := lumberjack.NewRoller(logFile, maxSize, options)
 	if err != nil {
 		return nil, err
 	}
