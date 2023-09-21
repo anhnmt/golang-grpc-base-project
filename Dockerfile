@@ -27,4 +27,4 @@ WORKDIR /root/
 COPY --from=builder /app/main .
 
 # Command to run the executable
-ENTRYPOINT ./main --env=${APP_ENV:-local}
+ENTRYPOINT ./main --env=${APP_ENV}
