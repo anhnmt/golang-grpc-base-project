@@ -59,8 +59,12 @@ func New(env string) {
 	}
 	defaultConfig.Store(c)
 
+	if env == "" {
+		env = "default"
+	}
+
 	slog.Info("Runtime information",
-		slog.String("env", envFile),
+		slog.String("env", env),
 		slog.String("goarch", runtime.GOARCH),
 		slog.String("goos", runtime.GOOS),
 		slog.String("version", runtime.Version()),
