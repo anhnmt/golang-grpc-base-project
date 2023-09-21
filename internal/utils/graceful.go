@@ -34,7 +34,7 @@ func GracefulShutdown(
 
 		// set timeout for the ops to be done to prevent system hang
 		timeoutFunc := time.AfterFunc(timeout, func() {
-			slog.Error(fmt.Sprintf("Timeout %d ms has been elapsed, force exit", timeout.Milliseconds()))
+			slog.Error(fmt.Sprintf("timeout %d ms has been elapsed, force exit", timeout.Milliseconds()))
 			os.Exit(0)
 		})
 
@@ -48,7 +48,7 @@ func GracefulShutdown(
 			func() {
 				defer wg.Done()
 
-				slog.Info(fmt.Sprintf("Cleaning up: %s", innerKey))
+				slog.Info(fmt.Sprintf("cleaning up: %s", innerKey))
 				if err := innerOp(ctx); err != nil {
 					slog.Error(fmt.Sprintf("%s: clean up failed: %s", innerKey, err.Error()))
 					return
