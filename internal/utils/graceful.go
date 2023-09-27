@@ -3,12 +3,13 @@ package utils
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 // Operation is a cleanup function on shutting down
@@ -30,31 +31,27 @@ func GracefulShutdown(
 		signal.Notify(s, syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 		<-s
 
-		slog.Info("Shutting down")
+		log.Info().Msg("shutting down")
 
 		// set timeout for the ops to be done to prevent system hang
 		timeoutFunc := time.AfterFunc(timeout, func() {
-			slog.Error(fmt.Sprintf("timeout %d ms has been elapsed, force exit", timeout.Milliseconds()))
-			os.Exit(0)
+			log.Panic().Msg(fmt.Sprintf("timeout %d ms has been elapsed, force exit", timeout.Milliseconds()))
 		})
-
 		defer timeoutFunc.Stop()
 
 		var wg sync.WaitGroup
-
 		// Do the operations asynchronously to save time
 		for innerKey, innerOp := range ops {
 			wg.Add(1)
 			func() {
 				defer wg.Done()
 
-				slog.Info(fmt.Sprintf("cleaning up: %s", innerKey))
+				log.Info().Msg(fmt.Sprintf("cleaning up: %s", innerKey))
 				if err := innerOp(ctx); err != nil {
-					slog.Error(fmt.Sprintf("%s: clean up failed: %s", innerKey, err.Error()))
-					return
+					log.Panic().Msg(fmt.Sprintf("%s: clean up failed: %s", innerKey, err.Error()))
 				}
 
-				slog.Info(fmt.Sprintf("%s was shutdown gracefully", innerKey))
+				log.Info().Msg(fmt.Sprintf("%s was shutdown gracefully", innerKey))
 			}()
 		}
 

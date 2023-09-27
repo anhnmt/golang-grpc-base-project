@@ -3,11 +3,11 @@ package server
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net/http"
 	_ "net/http/pprof"
 	"strings"
 
+	"github.com/rs/zerolog/log"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"golang.org/x/sync/errgroup"
@@ -36,7 +36,7 @@ func (s *Server) Start() error {
 	if config.PprofEnabled() {
 		g.TryGo(func() error {
 			addr := fmt.Sprintf(":%d", config.PprofPort())
-			slog.Info(fmt.Sprintf("starting pprof http://localhost%s", addr))
+			log.Info().Msg(fmt.Sprintf("starting pprof http://localhost%s", addr))
 
 			return http.ListenAndServe(addr, nil)
 		})
@@ -45,7 +45,7 @@ func (s *Server) Start() error {
 	// Serve the http server on the http listener.
 	g.TryGo(func() error {
 		addr := fmt.Sprintf(":%d", config.AppPort())
-		slog.Info(fmt.Sprintf("starting application http://localhost%s", addr))
+		log.Info().Msg(fmt.Sprintf("starting application http://localhost%s", addr))
 
 		// create new http server
 		srv := &http.Server{

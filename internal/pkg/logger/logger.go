@@ -3,49 +3,55 @@ package logger
 import (
 	"fmt"
 	"io"
-	"log/slog"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/natefinch/lumberjack/v3"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 // New the default logger
 func New(logFile string) {
+	// UNIX Time is faster and smaller than most timestamps
+	consoleWriter := &zerolog.ConsoleWriter{
+		Out:        os.Stdout,
+		TimeFormat: time.RFC3339,
+		NoColor:    false,
+	}
+
 	// Multi Writer
 	writer := []io.Writer{
-		os.Stdout,
+		consoleWriter,
 	}
 
 	if logFile != "" {
 		roller, err := getLogWriter(logFile)
 		if err != nil {
-			panic(fmt.Errorf("get current directory failed: %s", err))
+			log.Panic().Msg(fmt.Sprintf("get current directory failed: %v", err))
 		}
 
 		writer = append(writer, roller)
 	}
 
-	replacer := func(groups []string, a slog.Attr) slog.Attr {
-		// Remove the directory from the source's filename.
-		if a.Key == slog.SourceKey {
-			source := a.Value.Any().(*slog.Source)
-			source.File = filepath.Base(source.File)
-		}
-
-		return a
+	// Caller Marshal Function
+	zerolog.CallerMarshalFunc = func(_ uintptr, file string, line int) string {
+		return fmt.Sprintf("%s:%d", filepath.Base(file), line)
 	}
 
-	loggingLevel := new(slog.LevelVar)
-	mutiWriter := io.MultiWriter(writer...)
-	textHandler := slog.NewTextHandler(mutiWriter, &slog.HandlerOptions{
-		AddSource:   true,
-		Level:       loggingLevel,
-		ReplaceAttr: replacer,
-	})
+	zerolog.InterfaceMarshalFunc = sonic.Marshal
 
-	l := slog.New(textHandler)
-	slog.SetDefault(l)
+	l := zerolog.
+		New(zerolog.MultiLevelWriter(writer...)).
+		With().
+		Timestamp().
+		Caller().
+		Logger()
+
+	log.Logger = l
+	zerolog.DefaultContextLogger = &l
 }
 
 // getLogWriter returns a lumberjack.logger
