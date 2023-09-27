@@ -2,9 +2,8 @@ package main
 
 import (
 	"context"
-	"log/slog"
-	"os"
 
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/pflag"
 
 	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/config"
@@ -29,22 +28,17 @@ func main() {
 	logger.New(logFile)
 	config.New(env)
 
-	slog.Info("Hello world",
-		slog.String("app_name", config.AppName()),
-	)
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	srv, err := wire.InitServer()
 	if err != nil {
-		slog.Error("Initial server failed")
+		log.Panic().Msg("initial server failed")
 	}
 
 	go func(srv *server.Server) {
 		if err = srv.Start(); err != nil {
-			slog.Error("Start server failed")
-			os.Exit(0)
+			log.Panic().Msg("start server failed")
 		}
 	}(srv)
 
@@ -56,5 +50,5 @@ func main() {
 	})
 	<-wait
 
-	slog.Info("Graceful shutdown complete")
+	log.Info().Msg("graceful shutdown complete")
 }

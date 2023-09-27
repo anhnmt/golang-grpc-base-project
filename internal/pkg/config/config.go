@@ -4,13 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"log/slog"
 	"os"
 	"runtime"
 	"strings"
 	"sync/atomic"
 	"syscall"
 
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
@@ -63,12 +63,12 @@ func New(env string) {
 		env = "default"
 	}
 
-	slog.Info("Runtime information",
-		slog.String("env", env),
-		slog.String("goarch", runtime.GOARCH),
-		slog.String("goos", runtime.GOOS),
-		slog.String("version", runtime.Version()),
-	)
+	log.Info().
+		Str("env", env).
+		Str("goarch", runtime.GOARCH).
+		Str("goos", runtime.GOOS).
+		Str("version", runtime.Version()).
+		Msg("runtime information")
 }
 
 func getEnvFile(env string) string {
