@@ -3,7 +3,9 @@ module github.com/anhnmt/golang-grpc-base-project
 go 1.21
 
 require (
+	entgo.io/ent v0.12.4
 	github.com/bytedance/sonic v1.10.1
+	github.com/google/uuid v1.3.1
 	github.com/google/wire v0.5.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
 	github.com/natefinch/lumberjack/v3 v3.0.0-alpha
@@ -33,7 +35,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	golang.org/x/arch v0.5.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231002182017-d307bd883b97 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
