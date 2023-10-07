@@ -7,14 +7,20 @@
 package wire
 
 import (
+	"context"
 	"github.com/anhnmt/golang-grpc-base-project/internal/grpc_server"
+	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/database"
 	"github.com/anhnmt/golang-grpc-base-project/internal/server"
 )
 
 // Injectors from wire.go:
 
-func InitServer() (*server.Server, error) {
+func InitServer(ctx context.Context) (*server.Server, error) {
+	client, err := database.New(ctx)
+	if err != nil {
+		return nil, err
+	}
 	grpcServer := grpc_server.New()
-	serverServer := server.New(grpcServer)
+	serverServer := server.New(client, grpcServer)
 	return serverServer, nil
 }

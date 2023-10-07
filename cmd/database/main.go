@@ -7,10 +7,9 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/config"
+	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/database"
 	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/logger"
-	"github.com/anhnmt/golang-grpc-base-project/internal/server"
 	"github.com/anhnmt/golang-grpc-base-project/internal/utils"
-	"github.com/anhnmt/golang-grpc-base-project/internal/wire"
 )
 
 var (
@@ -28,27 +27,33 @@ func main() {
 	logger.New(logFile)
 	config.New(env)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	srv, err := wire.InitServer(ctx)
+	ctx := context.Background()
+	database, err := database.New(ctx)
 	if err != nil {
-		log.Panic().Msg("initial server failed")
+		log.Fatal().Err(err).
+			Msg("New database failed")
 	}
 
-	go func(srv *server.Server) {
-		if err = srv.Start(ctx); err != nil {
-			log.Panic().Msg("start server failed")
-		}
-	}(srv)
+	// database = database.Debug()
+	//
+	// first, err := database.Target.Query().
+	// 	Where().
+	// 	First(ctx)
+	// if err != nil {
+	// 	log.Fatal().Err(err).
+	// 		Msg("Query failed")
+	// 	return
+	// }
+
+	// log.Info().Interface("data", first).Msg("Query succeeded")
 
 	// wait for termination signal
 	wait := utils.GracefulShutdown(ctx, utils.DefaultShutdownTimeout, map[string]utils.Operation{
-		"server": func(c context.Context) error {
-			return srv.Close(c)
+		"db": func(c context.Context) error {
+			return database.Close()
 		},
 	})
 	<-wait
 
-	log.Info().Msg("graceful shutdown complete")
+	log.Info().Msg("Graceful shutdown complete")
 }
