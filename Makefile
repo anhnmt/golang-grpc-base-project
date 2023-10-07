@@ -18,6 +18,9 @@ docker.up: docker.pull docker.run
 docker.down:
 	docker compose -f docker-compose.yml down
 
+wire.gen:
+	wire ./...
+
 ent.new:
 	ent new User
 
