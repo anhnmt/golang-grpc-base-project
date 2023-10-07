@@ -13,25 +13,29 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
+	"github.com/anhnmt/golang-grpc-base-project/ent"
 	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/config"
 )
 
 type Server struct {
+	database   *ent.Client
 	grpcServer *grpc.Server
 }
 
 func New(
+	database *ent.Client,
 	grpcServer *grpc.Server,
 ) *Server {
 	s := &Server{
+		database:   database,
 		grpcServer: grpcServer,
 	}
 
 	return s
 }
 
-func (s *Server) Start() error {
-	g, _ := errgroup.WithContext(context.Background())
+func (s *Server) Start(ctx context.Context) error {
+	g, _ := errgroup.WithContext(ctx)
 
 	if config.PprofEnabled() {
 		g.TryGo(func() error {
@@ -79,6 +83,10 @@ func (s *Server) Close(ctx context.Context) error {
 	g.TryGo(func() error {
 		s.grpcServer.GracefulStop()
 		return nil
+	})
+
+	g.TryGo(func() error {
+		return s.database.Close()
 	})
 
 	return g.Wait()

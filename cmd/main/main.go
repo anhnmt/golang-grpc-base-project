@@ -31,13 +31,13 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	srv, err := wire.InitServer()
+	srv, err := wire.InitServer(ctx)
 	if err != nil {
 		log.Panic().Msg("initial server failed")
 	}
 
 	go func(srv *server.Server) {
-		if err = srv.Start(); err != nil {
+		if err = srv.Start(ctx); err != nil {
 			log.Panic().Msg("start server failed")
 		}
 	}(srv)
