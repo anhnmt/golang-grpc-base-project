@@ -3,6 +3,7 @@ module github.com/anhnmt/golang-grpc-base-project
 go 1.21
 
 require (
+	ariga.io/entcache v0.1.1-0.20230620164151-0eb723a11c40
 	entgo.io/ent v0.12.4
 	github.com/bytedance/sonic v1.10.1
 	github.com/google/uuid v1.3.1
@@ -21,7 +22,6 @@ require (
 
 require (
 	ariga.io/atlas v0.14.2 // indirect
-	ariga.io/entcache v0.1.1-0.20230620164151-0eb723a11c40 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
