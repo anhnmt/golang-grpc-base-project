@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/config"
-	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/database"
 	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/logger"
 	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/redis"
 	"github.com/anhnmt/golang-grpc-base-project/internal/utils"
@@ -35,29 +34,22 @@ func main() {
 			Msg("New redis failed")
 	}
 
-	database, err := database.New(ctx, redis)
+	err = redis.Set(ctx, "key", "value", 0).Err()
 	if err != nil {
 		log.Fatal().Err(err).
-			Msg("New database failed")
+			Msg("Set redis key failed")
 	}
 
-	// database = database.Debug()
-	//
-	// first, err := database.Target.Query().
-	// 	Where().
-	// 	First(ctx)
-	// if err != nil {
-	// 	log.Fatal().Err(err).
-	// 		Msg("Query failed")
-	// 	return
-	// }
+	val := redis.Get(ctx, "key").Val()
 
-	// log.Info().Interface("data", first).Msg("Query succeeded")
+	log.Info().
+		Interface("val", val).
+		Msg("Query succeeded")
 
 	// wait for termination signal
 	wait := utils.GracefulShutdown(ctx, utils.DefaultShutdownTimeout, map[string]utils.Operation{
-		"db": func(c context.Context) error {
-			return database.Close()
+		"redis": func(c context.Context) error {
+			return redis.Close()
 		},
 	})
 	<-wait
