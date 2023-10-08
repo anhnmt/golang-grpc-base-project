@@ -11,11 +11,13 @@ import (
 
 	"github.com/anhnmt/golang-grpc-base-project/internal/grpc_server"
 	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/database"
+	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/redis"
 	"github.com/anhnmt/golang-grpc-base-project/internal/server"
 )
 
 func InitServer(ctx context.Context) (*server.Server, error) {
 	wire.Build(
+		redis.ProviderRedisSet,
 		database.ProviderDatabaseSet,
 		grpc_server.ProviderGrpcServerSet,
 		server.ProviderServerSet,

@@ -10,17 +10,22 @@ import (
 	"context"
 	"github.com/anhnmt/golang-grpc-base-project/internal/grpc_server"
 	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/database"
+	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/redis"
 	"github.com/anhnmt/golang-grpc-base-project/internal/server"
 )
 
 // Injectors from wire.go:
 
 func InitServer(ctx context.Context) (*server.Server, error) {
+	universalClient, err := redis.New(ctx)
+	if err != nil {
+		return nil, err
+	}
 	client, err := database.New(ctx)
 	if err != nil {
 		return nil, err
 	}
 	grpcServer := grpc_server.New()
-	serverServer := server.New(client, grpcServer)
+	serverServer := server.New(universalClient, client, grpcServer)
 	return serverServer, nil
 }
