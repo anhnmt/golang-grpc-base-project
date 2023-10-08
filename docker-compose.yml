@@ -6,6 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      no_cache: true
     networks:
       - base-project
     restart: "always"
