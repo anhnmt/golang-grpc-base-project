@@ -5,7 +5,7 @@ go 1.21
 require (
 	ariga.io/entcache v0.1.1-0.20230620164151-0eb723a11c40
 	entgo.io/ent v0.12.4
-	github.com/bytedance/sonic v1.10.1
+	github.com/bytedance/sonic v1.10.2
 	github.com/google/uuid v1.3.1
 	github.com/google/wire v0.5.0
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.1
