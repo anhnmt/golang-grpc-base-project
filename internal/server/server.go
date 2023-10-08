@@ -7,6 +7,7 @@ import (
 	_ "net/http/pprof"
 	"strings"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -18,15 +19,18 @@ import (
 )
 
 type Server struct {
+	redis      redis.UniversalClient
 	database   *ent.Client
 	grpcServer *grpc.Server
 }
 
 func New(
+	redis redis.UniversalClient,
 	database *ent.Client,
 	grpcServer *grpc.Server,
 ) *Server {
 	s := &Server{
+		redis:      redis,
 		database:   database,
 		grpcServer: grpcServer,
 	}
@@ -87,6 +91,10 @@ func (s *Server) Close(ctx context.Context) error {
 
 	g.TryGo(func() error {
 		return s.database.Close()
+	})
+
+	g.TryGo(func() error {
+		return s.redis.Close()
 	})
 
 	return g.Wait()

@@ -17,7 +17,9 @@ import (
 var defaultConfig atomic.Value
 
 // Default returns the default Config.
-func Default() *Config { return defaultConfig.Load().(*Config) }
+func Default() *Config {
+	return defaultConfig.Load().(*Config)
+}
 
 // SetDefault makes c the default Config.
 func SetDefault(c *Config) {
@@ -34,7 +36,7 @@ func New(env string) {
 
 	pwd, err := os.Getwd()
 	if err != nil {
-		panic(fmt.Errorf("get current directory failed: %v", err))
+		log.Panic().Msg(fmt.Sprintf("get current directory failed: %v", err))
 	}
 
 	v.AddConfigPath(".")
@@ -48,14 +50,14 @@ func New(env string) {
 	if err != nil {
 		pe := &fs.PathError{Op: "open", Path: envFile, Err: syscall.ENOENT}
 		if ok := errors.As(err, &pe); !ok {
-			panic(fmt.Errorf("read in config failed: %v", err))
+			log.Panic().Msg(fmt.Sprintf("read in config failed: %v", err))
 		}
 	}
 
 	c := new(Config)
 	err = v.Unmarshal(&c)
 	if err != nil {
-		panic(fmt.Errorf("unable to decode into struct: %v", err))
+		log.Panic().Msg(fmt.Sprintf("unable to decode into struct: %v", err))
 	}
 	defaultConfig.Store(c)
 

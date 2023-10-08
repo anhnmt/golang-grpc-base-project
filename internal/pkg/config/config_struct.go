@@ -25,4 +25,10 @@ type Config struct {
 	DatabaseUser         string `mapstructure:"DATABASE_USER"`
 	DatabasePassword     string `mapstructure:"DATABASE_PASSWORD"`
 	DatabaseName         string `mapstructure:"DATABASE_NAME"`
+
+	// REDIS
+	RedisEnabled  bool   `mapstructure:"REDIS_ENABLED"`
+	RedisAddress  string `mapstructure:"REDIS_ADDRESS"`
+	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
+	RedisDB       int    `mapstructure:"REDIS_DB"`
 }
