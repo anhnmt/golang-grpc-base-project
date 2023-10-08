@@ -18,6 +18,10 @@ import (
 )
 
 func New(ctx context.Context) (*ent.Client, error) {
+	if !config.DatabaseEnabled() {
+		return nil, nil
+	}
+
 	maxOpenConns := config.DatabaseMaxOpenConns()
 	if maxOpenConns == 0 {
 		maxOpenConns = 15
