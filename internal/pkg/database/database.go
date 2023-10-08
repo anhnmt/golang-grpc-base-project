@@ -6,10 +6,12 @@ import (
 	"net/url"
 	"time"
 
+	"ariga.io/entcache"
 	"entgo.io/ent/dialect"
 	entsql "entgo.io/ent/dialect/sql"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/stdlib"
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog/log"
 
 	"github.com/anhnmt/golang-grpc-base-project/ent"
@@ -17,7 +19,10 @@ import (
 	"github.com/anhnmt/golang-grpc-base-project/internal/pkg/config"
 )
 
-func New(ctx context.Context) (*ent.Client, error) {
+func New(
+	ctx context.Context,
+	redis redis.UniversalClient,
+) (*ent.Client, error) {
 	if !config.DatabaseEnabled() {
 		return nil, nil
 	}
@@ -87,8 +92,17 @@ func New(ctx context.Context) (*ent.Client, error) {
 
 	drv := entsql.OpenDB(dialect.Postgres, db)
 
+	// Decorates the sql.Driver with entcache.Driver.
+	drvCache := entcache.NewDriver(
+		drv,
+		entcache.TTL(5*time.Second),
+		entcache.Levels(
+			entcache.NewRedis(redis),
+		),
+	)
+
 	// Create an ent.Driver from `db`.
-	client := ent.NewClient(ent.Driver(drv))
+	client := ent.NewClient(ent.Driver(drvCache))
 	if config.DatabaseDebug() {
 		client = client.Debug()
 	}
@@ -96,7 +110,7 @@ func New(ctx context.Context) (*ent.Client, error) {
 	// Run the auto migration tool.
 	if config.DatabaseMigration() {
 		if err = client.Schema.Create(
-			ctx,
+			entcache.Skip(ctx),
 			migrate.WithForeignKeys(false), // Disable foreign keys.
 		); err != nil {
 			log.Err(err).Msg("Failed creating schema resources")

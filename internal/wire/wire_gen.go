@@ -21,7 +21,7 @@ func InitServer(ctx context.Context) (*server.Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	client, err := database.New(ctx)
+	client, err := database.New(ctx, universalClient)
 	if err != nil {
 		return nil, err
 	}
