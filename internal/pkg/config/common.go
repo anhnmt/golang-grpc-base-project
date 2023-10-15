@@ -1,21 +1,25 @@
 package config
 
+import (
+	"github.com/spf13/viper"
+)
+
 func AppName() string {
-	return Default().AppName
+	return viper.GetString("APP_NAME")
 }
 
 func AppPort() int {
-	return Default().AppPort
+	return viper.GetInt("APP_PORT")
 }
 
 func PprofEnabled() bool {
-	return Default().PprofEnabled
+	return viper.GetBool("PPROF_ENABLED")
 }
 
 func PprofPort() int {
-	return Default().PprofPort
+	return viper.GetInt("PPROF_PORT")
 }
 
 func LogPayload() bool {
-	return Default().LogPayload
+	return viper.GetBool("LOG_PAYLOAD")
 }

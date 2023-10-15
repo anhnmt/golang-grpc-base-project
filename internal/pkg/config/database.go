@@ -1,49 +1,53 @@
 package config
 
+import (
+	"github.com/spf13/viper"
+)
+
 func DatabaseEnabled() bool {
-	return Default().DatabaseEnabled
+	return viper.GetBool("DATABASE_ENABLED")
 }
 
 func DatabaseDebug() bool {
-	return Default().DatabaseDebug
+	return viper.GetBool("DATABASE_DEBUG")
 }
 
 func DatabaseMigration() bool {
-	return Default().DatabaseMigration
+	return viper.GetBool("DATABASE_MIGRATION")
 }
 
 func DatabasePgbouncer() bool {
-	return Default().DatabasePgbouncer
+	return viper.GetBool("DATABASE_PGBOUNCER")
 }
 
 func DatabaseMaxOpenConns() int {
-	return Default().DatabaseMaxOpenConns
+	return viper.GetInt("DATABASE_MAX_OPEN_CONNS")
 }
 
 func DatabaseMaxIdleConns() int {
-	return Default().DatabaseMaxIdleConns
+	return viper.GetInt("DATABASE_MAX_IDLE_CONNS")
 }
 
 func DatabaseMaxLifetime() int {
-	return Default().DatabaseMaxLifetime
+	return viper.GetInt("DATABASE_MAX_LIFETIME")
 }
 
 func DatabaseHost() string {
-	return Default().DatabaseHost
+	return viper.GetString("DATABASE_HOST")
 }
 
 func DatabasePort() int {
-	return Default().DatabasePort
+	return viper.GetInt("DATABASE_PORT")
 }
 
 func DatabaseUser() string {
-	return Default().DatabaseUser
+	return viper.GetString("DATABASE_USER")
 }
 
 func DatabasePassword() string {
-	return Default().DatabasePassword
+	return viper.GetString("DATABASE_PASSWORD")
 }
 
 func DatabaseName() string {
-	return Default().DatabaseName
+	return viper.GetString("DATABASE_NAME")
 }
