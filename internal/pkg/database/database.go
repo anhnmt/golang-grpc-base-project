@@ -50,9 +50,9 @@ func New(
 		Str("host", host).
 		Int("port", port).
 		Bool("pgbouncer", pgbouncer).
-		Int("maxOpenConns", maxOpenConns).
-		Int("maxIdleConns", maxIdleConns).
-		Int("maxLifetime", maxLifetime).
+		Int("max_open_conns", maxOpenConns).
+		Int("max_idle_conns", maxIdleConns).
+		Int("max_lifetime", maxLifetime).
 		Msg("Connecting to DB")
 
 	dsn := &url.URL{
